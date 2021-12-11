@@ -45,4 +45,4 @@ def register():
     except IntegrityError:
         return jsonify({"error": "already_exists"}), 400
 
-    return jsonify({"username": user.username}), 400
+    return jsonify({"username": user.username}), 200
