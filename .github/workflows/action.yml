@@ -1,0 +1,50 @@
+name: Build and deploy action
+on: [push]
+jobs:
+  build and push:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: $GITHUB_REF_NAME-$GITHUB_RUN_ID
+      IMAGE: sermalenk/flask-app
+    steps:
+      - name: clone code
+        uses: actions/checkout@v2
+      - name: docker build
+        run: docker build -t $IMAGE:$IMAGE_TAG .
+      - name: docker login
+        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: docker push
+        run: docker push $IMAGE:$IMAGE_TAG
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: $GITHUB_REF_NAME-$GITHUB_RUN_ID
+      IMAGE: sermalenk/flask-app
+      DB_USER: postgres
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+    steps:
+      - name: clone code
+        uses: actions/checkout@v2
+      - name: render docker-compose.yaml
+        run: cat docker-compose-ci.yaml | envsubst > deploy/docker-compose.yaml
+      - name: render config
+        run: cat docker_ci_config.py | envsubst > deploy/docker_config.py
+      - name: clone files to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          source: "deploy/docker-compose.yaml,deploy/docker_config.py"
+          target: "flask-app"
+      - name: run docker-compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            sudo su
+            cd flask-app
+            docker-compose up -d
