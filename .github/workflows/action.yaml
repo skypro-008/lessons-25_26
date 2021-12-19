@@ -1,0 +1,13 @@
+name: "Build flask-app"
+on: [push]
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: show dir
+        run: ls -l
+      - name: clone code
+        uses: actions/checkout@v2
+      - name: show dir after clone
+        run: ls -ls
