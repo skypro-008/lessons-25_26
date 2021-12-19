@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: .
+    ports:
+    - 8000:80
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    volumes:
+      - ./docker_config.py:/code/default_config.py
+  migrations:
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./docker_config.py:/code/default_config.py
+    command: flask db upgrade
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: myapp
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
