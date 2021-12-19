@@ -3,23 +3,19 @@ on: [push]
 jobs:
   build_and_push:
     runs-on: ubuntu-latest
-    env:
-      IMAGE_TAG: $GITHUB_REF_NAME-$GITHUB_RUN_ID
-      IMAGE: sermalenk/flask-app
     steps:
       - name: clone code
         uses: actions/checkout@v2
       - name: docker build
-        run: docker build -t $IMAGE:$IMAGE_TAG .
+        run: docker build -t sermalenk/flask-app:$GITHUB_REF_NAME-$GITHUB_RUN_ID .
       - name: docker login
         run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: docker push
-        run: docker push $IMAGE:$IMAGE_TAG
+        run: docker push sermalenk/flask-app:$GITHUB_REF_NAME-$GITHUB_RUN_ID
   deploy:
     runs-on: ubuntu-latest
+    needs: build_and_push
     env:
-      IMAGE_TAG: $GITHUB_REF_NAME-$GITHUB_RUN_ID
-      IMAGE: sermalenk/flask-app
       DB_USER: postgres
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_NAME: ${{ secrets.DB_NAME }}

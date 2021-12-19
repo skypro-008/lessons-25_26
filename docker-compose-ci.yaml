@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   api:
-    image: $IMAGE:$IMAGE_TAG
+    image: sermalenk/flask-app:$GITHUB_REF_NAME-$GITHUB_RUN_ID
     ports:
     - 80:80
     depends_on:
@@ -12,7 +12,7 @@ services:
     volumes:
       - ./docker_config.py:/code/default_config.py
   migrations:
-    image: $IMAGE:$IMAGE_TAG
+    image: sermalenk/flask-app:$GITHUB_REF_NAME-$GITHUB_RUN_ID
     depends_on:
       postgres:
         condition: service_healthy
