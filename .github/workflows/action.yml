@@ -22,10 +22,11 @@ jobs:
     steps:
       - name: clone code
         uses: actions/checkout@v2
-      - name: render docker-compose.yaml
-        run: cat docker-compose-ci.yaml | envsubst > deploy/docker-compose.yaml
-      - name: render config
-        run: cat docker_ci_config.py | envsubst > deploy/docker_config.py
+      - name: render configs
+        run: |
+          mkdir deploy
+          cat docker-compose-ci.yaml | envsubst > deploy/docker-compose.yaml
+          cat docker_ci_config.py | envsubst > deploy/docker_config.py
       - name: clone files to server
         uses: appleboy/scp-action@master
         with:
