@@ -1,0 +1,12 @@
+name: Build action
+on: [push]
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: debug 1
+        run: ls -la
+      - name: clone code
+        uses: actions/checkout@v2
+      - name: debug 2
+        run: ls -la

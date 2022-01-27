@@ -1,11 +1,16 @@
+import logging
 from hashlib import md5
 
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.exc import IntegrityError
-
+from flask.logging import default_handler
 app = Flask("app")
+app.logger.setLevel(logging.DEBUG)
+app.logger.propagate = False
+default_handler.setFormatter(logging.Formatter('[%(asctime)s] [%(module)s.%(funcName)s:%(lineno)d] %(message)s'))
+
 app.config.from_pyfile("default_config.py")
 app.config.from_envvar("APP_SETTINGS", silent=True)
 
@@ -22,9 +27,13 @@ class User(db.Model):
 @app.route("/")
 def index():
     users = User.query.all()
+    app.logger.info("info")
+    app.logger.debug("debug")
+    app.logger.error("error")
     response = {
         "total": len(users),
         "users": [{"username": user.username} for user in users],
+        "secret": app.config['SUPERSECRET_INFO']
     }
     return jsonify(response)
 
@@ -46,3 +55,7 @@ def register():
         return jsonify({"error": "already_exists"}), 400
 
     return jsonify({"username": user.username}), 200
+
+#
+# from logging_tree import printout
+# printout()
