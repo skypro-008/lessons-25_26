@@ -2,16 +2,18 @@ version: "3.9"
 
 services:
   app:
-    image: sermalenk/skypro-flask-app:version-4
+    image: sermalenk/skypro-flask-app:$GITHUB_REF_NAME-$GITHUB_RUN_ID
     ports:
       - 80:80
     volumes:
       - ./data:/code/data
+      - ./docker_config.py:/code/default_config.py
     depends_on:
       migrations:
         condition: service_completed_successfully
   migrations:
-    image: sermalenk/skypro-flask-app:version-4
+    image: sermalenk/skypro-flask-app:$GITHUB_REF_NAME-$GITHUB_RUN_ID
     volumes:
       - ./data:/code/data
+      - ./docker_config.py:/code/default_config.py
     command: flask db upgrade
