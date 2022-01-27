@@ -14,6 +14,7 @@ jobs:
         run: docker push sermalenk/skypro-flask-app:$GITHUB_REF_NAME-$GITHUB_RUN_ID
   deploy:
     runs-on: ubuntu-latest
+    needs: build_and_push
     env:
       SUPERSECRET_INFO: ${{ secrets.SUPERSECRET_INFO }}
     steps:
