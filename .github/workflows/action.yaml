@@ -9,6 +9,6 @@ jobs:
       - name: docker build
         run: docker build -t sermalenk/skypro-flask-app:$GITHUB_REF_NAME-$GITHUB_RUN_ID .
       - name: docker login
-        run: echo ${{ secrets.DOCKER_TOKEN }} | docker login -u sermalenk
+        run: echo ${{ secrets.DOCKER_TOKEN }} | docker login -u sermalenk --password-stdin
       - name: docker push
         run: docker push sermalenk/skypro-flask-app:$GITHUB_REF_NAME-$GITHUB_RUN_ID
